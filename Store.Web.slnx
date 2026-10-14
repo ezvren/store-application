@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="Store.Application.Test/Store.Application.Test.csproj" Id="505fb819-620e-470c-ac2f-03545e2e9787" />
     <Project Path="Store.Application/Store.Application.csproj" />
     <Project Path="Store.Core/Store.Core.csproj" />
     <Project Path="Store.Infrastructure/Store.Infrastructure.csproj" />

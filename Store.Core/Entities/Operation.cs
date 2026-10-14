@@ -19,7 +19,7 @@ namespace Store.Core.Entities
 
         public decimal ChangeAmount { get; set; }
 
-        public ICollection<OperationBreakdown> OperationItems { get; set; } = [];
+        public ICollection<OperationBreakdown> OperationBreakdowns { get; set; } = [];
 
     }
 }

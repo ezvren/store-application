@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Store.Core.Enum;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Store.Core.Entities
 {
@@ -10,6 +11,8 @@ namespace Store.Core.Entities
         public Guid OperationId { get; set; }
 
         public virtual Operation Operation { get; set; }
+
+        public DenominationKind DenominationKind { get; set; }
 
         public decimal DenominationValue { get; set; }
 

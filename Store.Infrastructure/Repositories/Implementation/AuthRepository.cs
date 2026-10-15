@@ -24,15 +24,9 @@ namespace Store.Infrastructure.Repositories.Implementation
             return user is not null;
         }
 
-        public async Task<bool> Login(string userName, string password)
+        public async Task<Cashier?> GetUserByEmail(string email)
         {
-            var user = await userManager.FindByNameAsync(userName);
-
-            if (user is null) return false;
-
-            var result = await signInManager.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
-
-            return result.Succeeded;
+            return await userManager.FindByEmailAsync(email);
         }
     }
 }

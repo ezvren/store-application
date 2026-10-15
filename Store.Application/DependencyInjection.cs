@@ -29,12 +29,14 @@ namespace Store.Application
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
             services.AddScoped<IOperationRepository, OperationRepository>();
+            services.AddScoped<IAuthRepository, AuthRepository>();
             return services;
         }
 
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddScoped<IOperationService, OperationService>();
+            services.AddScoped<IAuthService, AuthService>();
             return services;
         }
     }

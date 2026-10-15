@@ -6,6 +6,7 @@ namespace Store.Application.DTOs
 {
     public class ResponseOperationDTO
     {
+        public Guid Id { get; set; }
         public decimal TotalAmount { get; set; }
         public decimal ReceivedAmount { get; set; }
         public decimal ChangeAmount { get; set; }

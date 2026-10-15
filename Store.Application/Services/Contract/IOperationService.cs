@@ -5,7 +5,8 @@ namespace Store.Application.Services.Contract
 {
     public interface IOperationService
     {
-        Task<ResponseDTO> SaveOperation(decimal? totalAmount, decimal? receivedAmount, ClaimsPrincipal user);
+        Task<List<ResponseOperationHistoryDTO>> HistoryOperationForUser(Guid id);
+        Task<ResponseDTO> SaveOperation(decimal? totalAmount, decimal? receivedAmount, Guid idUser);
         Task<ResponseOperationDTO> SearchOperation(Guid id);
     }
 }

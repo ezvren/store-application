@@ -8,11 +8,41 @@ using System.Security.Claims;
 
 namespace Store.Application.Services.Implementation
 {
-    public class OperationService(IOperationRepository operationRepository, OperationHelper operationHelper, UserManager<Cashier> userManager) : IOperationService
+    public class OperationService(IOperationRepository operationRepository, OperationHelper operationHelper) : IOperationService
     {
+        public async Task<List<ResponseOperationHistoryDTO>> HistoryOperationForUser(Guid id)
+        {
+            var operations = await operationRepository.GetOperationByUser(id);
+
+            if (operations is null || operations.Count == 0) return [];
+
+            return operations.GroupBy(o => o.Date.Date)
+                .Select(group => new ResponseOperationHistoryDTO
+                {
+                    Date = group.Key,
+                    Operations = group.Select(o => new ResponseOperationDTO
+                    {
+                        Id = o.Id,
+                        TotalAmount = o.TotalAmount,
+                        ReceivedAmount = o.ReceivedAmount,
+                        ChangeAmount = o.ChangeAmount,
+                        ChangeBreakdown = o.OperationBreakdowns?
+                            .Select(b => new DenominationBreakdownDTO
+                            {
+                                DenominationValue = b.DenominationValue,
+                                Quantity = b.Quantity,
+                                DenominationKind = b.DenominationKind
+                            })
+                            .OrderByDescending(b => b.DenominationValue)
+                            .ToList()
+                    }).ToList()
+                })
+                .ToList();
+        }
+
         public async Task<ResponseOperationDTO> SearchOperation(Guid id)
         {
-            var operation = await operationRepository.GetByIdAsync(id);
+            Operation? operation = await operationRepository.GetByIdAsync(id);
 
             if (operation is null) return null;
 
@@ -30,8 +60,7 @@ namespace Store.Application.Services.Implementation
             };
         }
 
-
-        public async Task<ResponseDTO> SaveOperation(decimal? totalAmount, decimal? receivedAmount, ClaimsPrincipal user)
+        public async Task<ResponseDTO> SaveOperation(decimal? totalAmount, decimal? receivedAmount, Guid idUser)
         {
             ResponseDTO responseHelper = new();
 
@@ -62,7 +91,7 @@ namespace Store.Application.Services.Implementation
 
                 Operation operation = new()
                 {
-                    CashierId = Guid.Parse(userManager.GetUserId(user)),
+                    CashierId = idUser,
                     Date = DateTime.UtcNow,
                     TotalAmount = total,
                     ReceivedAmount = received,

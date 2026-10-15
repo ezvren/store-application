@@ -11,5 +11,10 @@ namespace Store.Infrastructure.Repositories.Implementation
         {
             return context.Operation.Include(x => x.OperationBreakdowns).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
         }
+
+        public async Task<List<Operation>> GetOperationByUser(Guid idUser, CancellationToken cancellationToken = default)
+        {
+            return await context.Operation.Include(x => x.OperationBreakdowns).Where(x => x.CashierId == idUser).ToListAsync(cancellationToken);
+        }
     }
 }

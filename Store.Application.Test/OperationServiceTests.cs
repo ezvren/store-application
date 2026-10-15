@@ -34,7 +34,7 @@ namespace Store.Application.Test
         [MemberData(nameof(InvalidAmountsTestData))]
         public async Task SaveOperation_InvalidAmounts_ReturnsErrorWithoutSaving(decimal? totalAmount, decimal? receivedAmount, string expectedMessage)
         {
-            var result = await _service.SaveOperation(totalAmount, receivedAmount);
+            var result = await _service.SaveOperation(totalAmount, receivedAmount, Guid.NewGuid());
 
             Assert.False(result.Success);
             Assert.Equal(expectedMessage, result.Message);
@@ -58,7 +58,7 @@ namespace Store.Application.Test
 
             _operationRepositoryMock.Setup(repository => repository.SaveChangesAsync()).ReturnsAsync(1);
 
-            var result = await _service.SaveOperation(80.00m, 80.00m);
+            var result = await _service.SaveOperation(80.00m, 80.00m, Guid.NewGuid());
 
             Assert.True(result.Success);
             Assert.Equal("Operation saved successfully. No change is required.", result.Message);
@@ -95,7 +95,7 @@ namespace Store.Application.Test
 
             _operationRepositoryMock.Setup(repository => repository.SaveChangesAsync()).ReturnsAsync(1);
 
-            var result = await _service.SaveOperation(totalAmount, receivedAmount);
+            var result = await _service.SaveOperation(totalAmount, receivedAmount, Guid.NewGuid());
 
             Assert.True(result.Success);
             Assert.Equal("Operation saved successfully.", result.Message);

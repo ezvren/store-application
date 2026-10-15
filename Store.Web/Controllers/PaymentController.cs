@@ -3,11 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using Store.Application.DTOs;
 using Store.Application.Services.Contract;
 using Store.Web.Models;
+using System.Security.Claims;
 
 namespace Store.Web.Controllers
 {
     public class PaymentController(IOperationService operationService) : Controller
     {
+        private Guid UserId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+
         [Authorize]
         [HttpGet]
         public IActionResult Index(PaymentViewModel model) => View(model);
@@ -17,7 +21,7 @@ namespace Store.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PaymentOperation(PaymentViewModel model)
         {
-            var result = await operationService.SaveOperation(model.TotalAmount, model.ReceivedAmount, User);
+            var result = await operationService.SaveOperation(model.TotalAmount, model.ReceivedAmount, UserId);
 
             if (!result.Success)
             {
@@ -58,8 +62,25 @@ namespace Store.Web.Controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult PaymentHistory() => View();
+        public async Task<IActionResult> History()
+        {
+            var result = await operationService.HistoryOperationForUser(UserId);
 
 
+            var model = result.Select(group => new HistoryOperationViewModel
+            {
+                Date = group.Date,
+                Operations = group.Operations.Select(o => new OperationViewModel
+                {
+                    Id = o.Id,
+                    TotalAmount = o.TotalAmount,
+                    ReceivedAmount = o.ReceivedAmount,
+                    ChangeAmount = o.ChangeAmount,
+                    ChangeBreakdown = o.ChangeBreakdown
+                }).ToList()
+            }).ToList();
+
+            return View(model);
+        }
     }
 }

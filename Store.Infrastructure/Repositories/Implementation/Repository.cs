@@ -10,9 +10,9 @@ public class Repository<TEntity>(AppDbContext context) : IRepository<TEntity> wh
     protected readonly AppDbContext Context = context;
     protected readonly DbSet<TEntity> DbSet = context.Set<TEntity>();
 
-    public virtual async Task<TEntity?> GetByIdAsync(object id, CancellationToken cancellationToken = default)
+    public virtual async Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await DbSet.FindAsync([id], cancellationToken);
+        return await DbSet.FindAsync(id, cancellationToken);
     }
 
     public virtual async Task<IReadOnlyList<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)

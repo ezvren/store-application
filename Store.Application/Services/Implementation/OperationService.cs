@@ -1,15 +1,37 @@
-﻿using Store.Application.DTOs;
+﻿using Microsoft.AspNetCore.Identity;
+using Store.Application.DTOs;
 using Store.Application.Helpers;
 using Store.Application.Services.Contract;
 using Store.Core.Entities;
 using Store.Infrastructure.Repositories.Contract;
+using System.Security.Claims;
 
 namespace Store.Application.Services.Implementation
 {
-    public class OperationService(IOperationRepository operationRepository, OperationHelper operationHelper) : IOperationService
+    public class OperationService(IOperationRepository operationRepository, OperationHelper operationHelper, UserManager<Cashier> userManager) : IOperationService
     {
+        public async Task<ResponseOperationDTO> SearchOperation(Guid id)
+        {
+            var operation = await operationRepository.GetByIdAsync(id);
 
-        public async Task<ResponseDTO> SaveOperation(decimal? totalAmount, decimal? receivedAmount)
+            if (operation is null) return null;
+
+            return new ResponseOperationDTO
+            {
+                TotalAmount = operation.TotalAmount,
+                ReceivedAmount = operation.ReceivedAmount,
+                ChangeAmount = operation.ChangeAmount,
+                ChangeBreakdown = operation.OperationBreakdowns?.Select(b => new DenominationBreakdownDTO
+                {
+                    DenominationValue = b.DenominationValue,
+                    Quantity = b.Quantity,
+                    DenominationKind = b.DenominationKind
+                }).OrderByDescending(x => x.DenominationValue).ToList()
+            };
+        }
+
+
+        public async Task<ResponseDTO> SaveOperation(decimal? totalAmount, decimal? receivedAmount, ClaimsPrincipal user)
         {
             ResponseDTO responseHelper = new();
 
@@ -40,7 +62,7 @@ namespace Store.Application.Services.Implementation
 
                 Operation operation = new()
                 {
-                    CashierId = Guid.NewGuid(),
+                    CashierId = Guid.Parse(userManager.GetUserId(user)),
                     Date = DateTime.UtcNow,
                     TotalAmount = total,
                     ReceivedAmount = received,
@@ -61,9 +83,20 @@ namespace Store.Application.Services.Implementation
                 await operationRepository.AddAsync(operation);
                 await operationRepository.SaveChangesAsync();
 
-
                 responseHelper.Success = true;
                 responseHelper.Message = change == 0 ? "Operation saved successfully. No change is required." : "Operation saved successfully.";
+                responseHelper.Data = new ResponseOperationDTO
+                {
+                    TotalAmount = total,
+                    ReceivedAmount = received,
+                    ChangeAmount = change,
+                    ChangeBreakdown = operation.OperationBreakdowns?.Select(b => new DenominationBreakdownDTO
+                    {
+                        DenominationValue = b.DenominationValue,
+                        Quantity = b.Quantity,
+                        DenominationKind = b.DenominationKind
+                    }).OrderByDescending(x => x.DenominationValue).ToList()
+                };
             }
             return responseHelper;
         }

@@ -8,11 +8,11 @@ namespace Store.Infrastructure.Data;
 public class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityDbContext<Cashier, IdentityRole<Guid>, Guid>(options)
 {
-    DbSet<Cashier> Cashier { get; set; }
+    public DbSet<Cashier> Cashier { get; set; }
 
-    DbSet<Operation> Operation { get; set; }
+    public DbSet<Operation> Operation { get; set; }
 
-    DbSet<OperationBreakdown> OperationBreakdown { get; set; }
+    public DbSet<OperationBreakdown> OperationBreakdown { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
